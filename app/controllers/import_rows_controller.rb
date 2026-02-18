@@ -4,10 +4,17 @@ class ImportRowsController < ApplicationController
   # GET /import_rows or /import_rows.json
   def index
     @import_rows = ImportRow.all
+
+    if params[:import_id].present?
+      @import = Import.find(params[:import_id])
+    end
   end
 
   # GET /import_rows/1 or /import_rows/1.json
   def show
+    if params[:import_id].present?
+      @import = Import.find(params[:import_id])
+    end
   end
 
   # GET /import_rows/new
@@ -65,6 +72,6 @@ class ImportRowsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def import_row_params
-      params.expect(import_row: [ :building_name, :street_address, :unit, :city, :state, :zip, :import_id ])
+      params.expect(import_row: [ :building_name, :street_address, :unit, :city, :state, :zip_code, :import_id ])
     end
 end

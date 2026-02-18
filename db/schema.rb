@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_18_160708) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_18_202649) do
   create_table "import_rows", force: :cascade do |t|
     t.string "building_name"
     t.string "city"
@@ -20,7 +20,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_160708) do
     t.string "street_address"
     t.string "unit"
     t.datetime "updated_at", null: false
-    t.string "zip"
+    t.string "zip_code"
     t.index ["import_id"], name: "index_import_rows_on_import_id"
   end
 
