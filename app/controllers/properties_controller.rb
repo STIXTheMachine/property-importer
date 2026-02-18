@@ -65,6 +65,6 @@ class PropertiesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def property_params
-      params.expect(property: [ :building_name, :street_address, :city, :state, :zip ])
+      params.expect(property: [ :building_name, :street_address, :city, :state, :zip_code ])
     end
 end
