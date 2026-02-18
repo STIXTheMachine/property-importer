@@ -12,7 +12,14 @@ class PropertyImportService < ApplicationService
     csv = CSV.read(@file, headers: true)
 
     csv.each_with_index do |row, index|
-      record = ImportRow.new(row.to_hash)
+
+      # Convert header names to the appropriate column names for ImportRow
+      row_hash = row.to_hash.each_with_object({}) do |(k, v), h|
+        col = k.downcase.sub(" ", "_")
+        h[col] = v
+      end
+
+      record = ImportRow.new(row_hash)
       record.import_id = import.id
       record.save
       record.broadcast_append_to "import_visitors"
