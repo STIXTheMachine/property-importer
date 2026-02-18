@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :import_rows
+  resources :imports
   resources :units
   resources :properties
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
