@@ -25,7 +25,7 @@ This is a Ruby on Rails application made to assist with onboarding new Payscore 
 - Extract data normalization responsibility from ImportRow model into a dedicated ImportNormalizationService
 - Discuss with team whether .csv imports are expected to be large enough to benefit from batch importing
 - Discuss with team whether data safety under concurrency is necessary
-- Consider making Import and ImportRows transient. They need to be persisted to the DB be kept alive throughout the import pipeline, but it might not be unreasonable to delete them once an Import is committed
+- Consider making Import and ImportRows transient. They need to be persisted to the DB to be kept alive throughout the import pipeline, but it might not be unreasonable to delete them once an Import is committed
   - Would also require determining how to handle session abandonment
 - Reorganize Property and Import views to allow for concise, table-based viewing a la Import and ImportRow
 - Create a DataValidationReport PORO and a view partial to render it properly in the import screen rather than dumping errors into the flash notification
