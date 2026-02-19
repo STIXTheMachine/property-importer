@@ -2,13 +2,13 @@
 
 # Introduction
 
-This is a Ruby on Rails application made to assist with onboarding new Payscore customers by allowing customers' Property and Unit data to be imported from a .csv file.
+This is a Ruby on Rails application made to assist with onboarding new Payscore customers by implementing an Upload, Review, Edit, Commit pipeline for Property and Unit data ingestion.
 
 # Installation
 1. Clone the git repository to a directory of your choosing
-2. `cd property-importer` and run `bin/setup`
+2. `cd property-importer` and run `bin/setup` (this will also start the server)
 3. Open the app at http://localhost:3000
-4. If the server must be restarted after running `bin/setup`, be sure to use `bin/dev`
+4. Project uses the Procfile stack (Tailwind watcher, Rails server), so when starting the server manually be sure to use `bin/dev` and not `bin/rails s`
 
 # Assumptions
 - Since the Customer relation is not included as part of this assessment, all properties are assumed to belong to a single customer currently being onboarded; Property names are therefore required to be unique at the database level, though in reality this uniqueness constraint would be scoped to the owning Customer
@@ -21,10 +21,21 @@ This is a Ruby on Rails application made to assist with onboarding new Payscore 
 - .csv files are parsed in-memory rather than streamed or batched, which will not scale well for very large files
 - Concurrency concerns (e.g. multiple imports committing simultaneously) are not accounted for
 
+# Improvements for the Future
+- Extract data normalization responsibility from ImportRow model into a dedicated ImportNormalizationService
+- Discuss with team whether .csv imports are expected to be large enough to benefit from batch importing
+- Discuss with team whether data safety under concurrency is necessary
+- Consider making Import and ImportRows transient. They need to be persisted to the DB be kept alive throughout the import pipeline, but it might not be unreasonable to delete them once an Import is committed
+  - Would also require determining how to handle session abandonment
+- Reorganize Property and Import views to allow for concise, table-based viewing a la Import and ImportRow
+- Create a DataValidationReport PORO and a view partial to render it properly in the import screen rather than dumping errors into the flash notification
+- (Stretch) Add turbo-driven features such as inline ImportRow editing, sorting/filtering ImportTables by specific columns
+- (Stretch) Integrate data import features into homepage to give SPA-like UX on the happy path
+
 # Architecture and Design Choices
 In addition to Properties and Units, this app makes use of two models and three service objects. General flow of data is as follows:
 
-CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -> Properties and Units in the DB
+User CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -> Properties and Units in the DB
 
 ## ImportRow
 - Represents a single row of the raw CSV file.
@@ -34,7 +45,7 @@ CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -> Pro
 - Represents a group of ImportRows imported from a single .csv file
 - Records the file name of the .csv from which it was generated
 - Records whether the ImportValidationService has validated all of its ImportRows and is ready to be committed to the DB
-- Records whether it has already been committed to the DB to avoid attempting to save duplicate data. (Although DB constraints on Property and Unit do prevent that anyway)
+- Records whether it has already been committed to the DB to avoid attempting to save duplicate data, though DB constraints do enforce this.
 
 Import and ImportRow are persisted to allow users to verify imported data and perform validation before fully committing to the DB.
 
