@@ -1,4 +1,7 @@
-class PropertyImportService < ApplicationService
+
+# Service responsible for importing data from a CSV file and turning it into an Import object for review and validation
+# prior to submitting to the DB
+class ImportFromCSVService < ApplicationService
   require("csv")
 
   def initialize(file)
@@ -24,9 +27,9 @@ class PropertyImportService < ApplicationService
       end
 
       record = ImportRow.new(row_hash)
+      record.normalize_fields!
       record.import_id = import.id
       record.save
-
     end
 
     # Return a reference to the import object we just created

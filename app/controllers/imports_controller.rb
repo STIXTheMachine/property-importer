@@ -47,6 +47,11 @@ class ImportsController < ApplicationController
     end
   end
 
+  def commit_import
+    import = Import.find(params[:import_id])
+    PropertiesAndUnitsFromImportService.call(import)
+  end
+
   # DELETE /imports/1 or /imports/1.json
   def destroy
     @import.destroy!

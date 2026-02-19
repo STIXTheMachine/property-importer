@@ -4,7 +4,7 @@ class DashboardController < ApplicationController
 
   def upload_file
     uploaded = import_params[:file]
-    import = PropertyImportService.call(uploaded)
+    import = ImportFromCSVService.call(uploaded)
     redirect_to import_import_rows_path(import)
   end
 
