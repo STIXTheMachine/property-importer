@@ -42,6 +42,7 @@ User CSV -> Upload -> Data Normalization -> ImportRows -> Validation -> Commit -
 ### ImportRow
 - Represents a single row of the raw CSV file.
 - Does not have any validations but does perform some normalization on imported data. (Namely trimming whitespace, upcasing)
+- Can be edited in-app to allow for correction of duplicate or malformed data
 
 ### Import
 - Represents a group of ImportRows imported from a single .csv file
