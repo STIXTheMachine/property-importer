@@ -59,6 +59,11 @@ class ImportRowsController < ApplicationController
         format.json { render json: @import_row.errors, status: :unprocessable_entity }
       end
     end
+
+    # Mark parent import as dirty
+    import = Import.find(@import_row.import_id)
+    import.validated = false
+    import.save
   end
 
   # DELETE /import_rows/1 or /import_rows/1.json
