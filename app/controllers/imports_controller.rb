@@ -47,9 +47,32 @@ class ImportsController < ApplicationController
     end
   end
 
+  def validate_import
+    import = Import.find(params[:import_id])
+    result = ValidateImportService.call(import)
+
+    if result[:success]
+      flash[:notice] = "Import successfully validated! You may now commit to the DB."
+    else
+      flash[:errors] = result[:errors]
+    end
+
+    redirect_to import_import_rows_path(import)
+  end
+
   def commit_import
     import = Import.find(params[:import_id])
-    PropertiesAndUnitsFromImportService.call(import)
+    puts import.inspect
+    result = CommitImportService.call(import)
+
+    if result[:success]
+      flash[:notice] = result[:message]
+    else
+      flash[:alert] = result[:message]
+    end
+
+    # Force reload to show flash messages
+    redirect_to import_import_rows_path(import)
   end
 
   # DELETE /imports/1 or /imports/1.json
