@@ -37,11 +37,13 @@ In addition to Properties and Units, this app makes use of two models and three 
 
 User CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -> Properties and Units in the DB
 
-## ImportRow
+## Models
+
+### ImportRow
 - Represents a single row of the raw CSV file.
 - Does not have any validations but does perform some normalization on imported data. (Namely trimming whitespace, upcasing)
 
-## Import
+### Import
 - Represents a group of ImportRows imported from a single .csv file
 - Records the file name of the .csv from which it was generated
 - Records whether the ImportValidationService has validated all of its ImportRows and is ready to be committed to the DB
@@ -49,11 +51,13 @@ User CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -
 
 Import and ImportRow are persisted to allow users to verify imported data and perform validation before fully committing to the DB.
 
-## ImportFromCsvService
+## Services
+
+### ImportFromCsvService
 - Creates an Import object to associate with the current .csv file
 - Parses .csv rows and creates ImportRow objects, attaching them to the Import object
 
-## ImportValidationService
+### ImportValidationService
 - Loops over all ImportRows associated with an Import object and verifies that they are suitable for committing to the DB.
   - This logic is intentionally performed here rather than via model validations on ImportRow. The goal is to allow the user to import all CSV data into the app for review, even if something is missing or malformed. This requires extracting the validation logic out of the model level
   - Service is structured so that it is clear to see precisely what criteria are being checked and so that it is easy to add additional validation checks
@@ -66,7 +70,7 @@ Import and ImportRow are persisted to allow users to verify imported data and pe
   - Validates that all zip codes are plausible
     - True verification would involve calling an external API or maintaining an unduly large local dataset, so some simple heuristics are employed
 
-## ImportCommitService
+### ImportCommitService
 - Responsible for parsing data associated with an Import into individual Properties and Units for committing to the DB transactionally
 - Will refuse to commit Imports that have not been validated by ImportValidationService
 - Will refuse to commit Imports that have passed validation but have already been committed before
