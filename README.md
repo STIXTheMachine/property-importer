@@ -59,3 +59,4 @@ Import and ImportRow are persisted to allow users to verify imported data and pe
 - Responsible for parsing data associated with an Import into individual Properties and Units for committing to the DB transactionally
 - Will refuse to commit Imports that have not been validated by ImportValidationService
 - Will refuse to commit Imports that have passed validation but have already been committed before
+
