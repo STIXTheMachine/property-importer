@@ -44,27 +44,24 @@ class ImportCommitService < ApplicationService
       }
     end
 
-    # Bulk insert
-    Property.transaction do
+    # Transactional insert of Properties and Units
+    ActiveRecord::Base.transaction do
       Property.insert_all(properties)
-    end
 
-    # Extract the DB records for all of the properties we just inserted so we can grab the IDs
-    property_lookup = Property
-                        .where(building_name: properties.map { |p| p[:building_name] })
-                        .index_by(&:building_name)
+      # Extract the DB records for all of the properties we just inserted so we can grab the IDs
+      property_lookup = Property
+                          .where(building_name: properties.map { |p| p[:building_name] })
+                          .index_by(&:building_name)
 
-    # Loop over rows, extract unit numbers, assign to properties
-    @import.import_rows.each do | row |
-      units << {
-        number: row.unit,
-        property_id: property_lookup[row.building_name].id
-      }
+      # Loop over rows, extract unit numbers, assign to properties
+      @import.import_rows.each do | row |
+        units << {
+          number: row.unit,
+          property_id: property_lookup[row.building_name].id
+        }
 
-    end
+      end
 
-    # Bulk insert
-    Unit.transaction do
       Unit.insert_all(units)
     end
 
