@@ -24,6 +24,7 @@ class ValidateImportService < ApplicationService
 
   def run_validations
     validate_properties_not_already_in_db
+    validate_units_are_unique_within_properties
     validate_states
     validate_zip_codes
   end
@@ -65,6 +66,30 @@ class ValidateImportService < ApplicationService
     unless @validations_passed
       properties_already_in_db.each do | property |
         @errors << "Property #{property[:building_name]} already exists in DB"
+      end
+    end
+  end
+
+  def validate_units_are_unique_within_properties
+    units_by_property = Hash.new { |h, k| h[k] = Set.new }
+
+    @import.import_rows.each do | row |
+      property_key = [
+        row.building_name,
+        row.street_address,
+        row.city,
+        row.state,
+        row.zip_code
+      ]
+
+      unit = row.unit
+      next if unit.blank?
+
+      if units_by_property[property_key].include? unit
+        @validations_passed &= false
+        @errors << "Unit #{unit} appears more than once for property #{row.building_name}"
+      else
+        units_by_property[property_key] << unit
       end
     end
   end

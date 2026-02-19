@@ -16,35 +16,37 @@ class ImportRow < ApplicationRecord
   # ==== Normalization Functions ====
   # =================================
 
+  def normalize_string_value(string)
+    string.to_s.squish.upcase.gsub(/[[:punct:]]/, "")
+  end
+
   def normalize_building_name!
     return if building_name.blank?
-    normalized = building_name.squish.upcase.delete(".")
+    normalized = normalize_string_value(building_name)
     self.building_name = normalized
   end
 
   def normalize_street_address!
     return if street_address.blank?
-    normalized = street_address.squish.upcase.delete(".")
+    normalized = normalize_string_value(street_address)
     self.street_address = normalized
   end
 
   def normalize_city!
     return if city.blank?
-    normalized = city.squish.upcase.delete(".")
+    normalized = normalize_string_value(city)
     self.city = normalized
   end
 
   def normalize_state!
     return if state.blank?
-    # We only alter the value in the model if we can successfully normalize the input string, otherwise we leave it
-    # as-is to avoid further corrupting a malformed entry
 
-    # Remove extraneous whitespaces and any periods
-    normalized = state.squish.upcase.delete(".")
+    # Perform regular string normalization and assign before we try to convert it to a state code
+    normalized = normalize_string_value(state)
+    self.state = normalized
 
+    # If state is already a valid 2 letter state code, we're done
     if UsStates::STATE_CODES.include?(normalized)
-      # state is already a valid 2 letter state code, we're done
-      self.state = normalized
       return
     end
 
@@ -73,9 +75,9 @@ class ImportRow < ApplicationRecord
   end
 
   def normalize_zip!
-    return if zip_code.blank? || zip_code.length < 5
+    return if zip_code.blank?
     # Really not much we can do other than trim whitespace and strip the +4 if it's present
-    normalized = zip_code.squish.slice(0, 5).to_s
+    normalized = zip_code.to_s.squish.slice(0, 5)
     self.zip_code = normalized
   end
 end
