@@ -24,7 +24,8 @@ class ImportValidationService < ApplicationService
 
   def run_validations
     validate_required_fields_exist
-    validate_properties_not_already_in_db
+    validate_property_names_not_already_in_db
+    validate_property_addresses_not_already_in_db
     validate_units_are_unique_within_properties
     validate_states
     validate_zip_codes
@@ -57,7 +58,7 @@ class ImportValidationService < ApplicationService
   end
 
   # Since we are only ingesting NEW properties we want to make sure that we are not clobbering any Properties already in the DB
-  def validate_properties_not_already_in_db
+  def validate_property_names_not_already_in_db
     seen = Set.new
     properties = []
 
@@ -80,7 +81,7 @@ class ImportValidationService < ApplicationService
         street_address: row.street_address,
         city: row.city,
         state: row.state,
-        zip_code: row.zip_code
+        zip_code: row.zip_code,
       }
     end
 
@@ -92,7 +93,52 @@ class ImportValidationService < ApplicationService
 
     unless @validations_passed
       properties_already_in_db.each do | property |
-        @errors << "Property #{property[:building_name]} already exists in DB"
+        @errors << "Property named #{property[:building_name]} already exists in DB"
+      end
+    end
+  end
+
+  def validate_property_addresses_not_already_in_db
+    seen = Set.new
+    properties = []
+
+    # Collect and deduplicate Properties
+    @import.import_rows.each do | row |
+      property_key = [
+        row.building_name,
+        row.street_address,
+        row.city,
+        row.state,
+        row.zip_code
+      ]
+
+      next if seen.include? property_key
+
+      seen.add property_key
+
+      properties << {
+        building_name: row.building_name,
+        street_address: row.street_address,
+        city: row.city,
+        state: row.state,
+        zip_code: row.zip_code,
+      }
+    end
+
+    # Check if we have any Properties already in the DB
+    properties_already_in_db = Property
+                                 .where(
+                                   street_address: properties.map { |p| p[:street_address] },
+                                   city: properties.map { |p| p[:city] },
+                                   state: properties.map { |p| p[:state] },
+                                   zip_code: properties.map { |p| p[:zip_code] }
+                                 )
+
+    @validations_passed &= properties_already_in_db.empty?
+
+    unless @validations_passed
+      properties_already_in_db.each do | property |
+        @errors << "Property at #{property[:street_address]}, #{property[:city]}, #{property[:state]} #{property[:zip_code]} already exists in DB with name #{property[:building_name]}"
       end
     end
   end
