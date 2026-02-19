@@ -1,0 +1,38 @@
+<div class="flex justify-between items-center">
+  <h1 class="truncate font-bold text-xl">Property data imported from <%= @import.filename %></h1>
+</div>
+
+<table class="min-w-full divide-y divide-gray-200 mt-5 border border-black shadow">
+  <thead class="bg-gray-100 border border-black">
+  <tr>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">Building</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">Street Address</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">Unit</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">City</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">State</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold">Zip Code</th>
+    <th class="border border-black px-3 py-2 text-left text-s font-semibold"></th>
+  </tr>
+  </thead>
+  <tbody class="divide=y divide-gray-100 bg-gray-200 rounded-sm">
+  <% @import_rows.each do |import_row| %>
+    <tr id="<%= dom_id(import_row) %>">
+      <td class="border border-black px-3 py-2"><%= import_row.building_name %></td>
+      <td class="border border-black px-3 py-2"><%= import_row.street_address %></td>
+      <td class="border border-black px-3 py-2"><%= import_row.unit %></td>
+      <td class="border border-black px-3 py-2"><%= import_row.city %></td>
+      <td class="border border-black px-3 py-2"><%= import_row.state %></td>
+      <td class="border border-black px-3 py-2"><%= import_row.zip_code %></td>
+      <td class="border border-black px-3 py-2">
+        <div class="flex w-full gap-4">
+          <%= link_to "Edit", edit_import_row_path(import_row), class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white block font-medium" %>
+          <%= button_to "Delete", import_row, method: :delete, data: { turbo_confirm: "Delete this row?"}, class: "rounded-md px-3.5 py-2.5 bg-red-600 hover:bg-red-500 text-white block font-medium" %>
+        </div>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<div>
+  <%= link_to "Add row", new_import_row_path(import_id: @import.id), class: "rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium" %>
+</div>

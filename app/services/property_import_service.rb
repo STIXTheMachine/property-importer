@@ -6,11 +6,15 @@ class PropertyImportService < ApplicationService
   end
 
   def call
+
+    # Create new import record
     import = Import.new(filename: @file.original_filename)
     import.save
-    puts import.inspect
+
+    # Read CSV file
     csv = CSV.read(@file, headers: true)
 
+    # Loop, save, associate with import object
     csv.each_with_index do |row, index|
 
       # Convert header names to the appropriate column names for ImportRow
@@ -22,7 +26,10 @@ class PropertyImportService < ApplicationService
       record = ImportRow.new(row_hash)
       record.import_id = import.id
       record.save
-      record.broadcast_append_to "import_visitors"
+
     end
+
+    # Return a reference to the import object we just created
+    import
   end
 end

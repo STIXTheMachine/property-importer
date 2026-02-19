@@ -3,23 +3,30 @@ class ImportRowsController < ApplicationController
 
   # GET /import_rows or /import_rows.json
   def index
-    @import_rows = ImportRow.all
-
-    if params[:import_id].present?
-      @import = Import.find(params[:import_id])
+    if parent_import.present?
+      @import = Import.find(parent_import)
+      @import_rows = @import.import_rows
+    else
+      @import_rows = ImportRow
+                       .joins(:import)
+                       .order("imports.filename ASC", building_name: :asc, unit: :asc)
     end
   end
 
   # GET /import_rows/1 or /import_rows/1.json
   def show
-    if params[:import_id].present?
-      @import = Import.find(params[:import_id])
+    if parent_import.present?
+      @import = Import.find(parent_import)
     end
   end
 
   # GET /import_rows/new
   def new
-    @import_row = ImportRow.new
+    if parent_import.present?
+      @import_row = ImportRow.new(import_id: parent_import)
+    else
+      @import_row = ImportRow.new
+    end
   end
 
   # GET /import_rows/1/edit
@@ -61,6 +68,7 @@ class ImportRowsController < ApplicationController
     respond_to do |format|
       format.html { redirect_to import_rows_path, notice: "Import row was successfully destroyed.", status: :see_other }
       format.json { head :no_content }
+      format.turbo_stream
     end
   end
 
@@ -73,5 +81,9 @@ class ImportRowsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def import_row_params
       params.expect(import_row: [ :building_name, :street_address, :unit, :city, :state, :zip_code, :import_id ])
+    end
+
+    def parent_import
+      params[:import_id]
     end
 end

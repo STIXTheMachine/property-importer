@@ -1,9 +1,9 @@
 <%= form_with(model: Import.new, url: root_path, class: "contents") do |form| %>
   <div class="my-5">
-    <%= form.file_field :file, accept: ".csv", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full" %>
+    <%= form.file_field :file, accept: ".csv", class: "block shadow rounded-md border border-gray-200 outline-none px-3 py-2 mt-2 w-full file:rounded-sm file:bg-blue-600 file:hover:bg-blue-500 file:text-white file:px-2 file:py-1" %>
   </div>
 
   <div class="inline">
-    <%= form.submit "Import", class: "rounded-lg py-3 px-5 bg-blue-600 text-white inline-block font-medium cursor-pointer mr-2" %>
+    <%= form.submit "Import", class: "rounded-lg py-3 px-5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer mr-2" %>
   </div>
 <% end %>
