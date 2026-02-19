@@ -1,6 +1,6 @@
 # Service responsible for parsing data stored in an Import object, converting it to Properties and Units, and saving them
 # to the DB. Will only commit data if the Import has been marked as validated by the ImportValidationService
-class CommitImportService < ApplicationService
+class ImportCommitService < ApplicationService
   def initialize(import)
     @import = import
   end

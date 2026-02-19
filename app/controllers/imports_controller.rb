@@ -49,7 +49,7 @@ class ImportsController < ApplicationController
 
   def validate_import
     import = Import.find(params[:import_id])
-    result = ValidateImportService.call(import)
+    result = ImportValidationService.call(import)
 
     if result[:success]
       flash[:notice] = "Import successfully validated! You may now commit to the DB."
@@ -63,7 +63,7 @@ class ImportsController < ApplicationController
   def commit_import
     import = Import.find(params[:import_id])
     puts import.inspect
-    result = CommitImportService.call(import)
+    result = ImportCommitService.call(import)
 
     if result[:success]
       flash[:notice] = result[:message]

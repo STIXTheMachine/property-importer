@@ -1,6 +1,6 @@
 # Service responsible for reviewing an Import object and determining if there are any issues which should be brought
 # to attention/fixed
-class ValidateImportService < ApplicationService
+class ImportValidationService < ApplicationService
   def initialize(import)
     @import = import
   end
@@ -23,10 +23,37 @@ class ValidateImportService < ApplicationService
   private
 
   def run_validations
+    validate_required_fields_exist
     validate_properties_not_already_in_db
     validate_units_are_unique_within_properties
     validate_states
     validate_zip_codes
+  end
+
+  # Single-family homes are Properties with no units so unit may be blank, but all other entries must exist to be valid
+  def validate_required_fields_exist
+    @import.import_rows.each do |row|
+      if row.building_name.blank?
+        @validations_passed &= false
+        errors << "row #{row[:row]}: blank building name"
+      end
+      if row.street_address.blank?
+        @validations_passed &= false
+        errors << "row #{row[:row]}: blank street address"
+      end
+      if row.city.blank?
+        @validations_passed &= false
+        errors << "row #{row[:row]}: blank city"
+      end
+      if row.state.blank?
+        @validations_passed &= false
+        errors << "row #{row[:row]}: blank state"
+      end
+      if row.zip_code.blank?
+        @validations_passed &= false
+        errors << "row #{row[:row]}: blank zip code"
+      end
+    end
   end
 
   # Since we are only ingesting NEW properties we want to make sure that we are not clobbering any Properties already in the DB
