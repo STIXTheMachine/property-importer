@@ -35,7 +35,7 @@ This is a Ruby on Rails application made to assist with onboarding new Payscore 
 # Architecture and Design Choices
 In addition to Properties and Units, this app makes use of two models and three service objects. General flow of data is as follows:
 
-User CSV -> Import -> Data Normalization -> ImportRows -> Validation -> Commit -> Properties and Units in the DB
+User CSV -> Upload -> Data Normalization -> ImportRows -> Validation -> Commit -> Properties and Units in the DB
 
 ## Models
 
