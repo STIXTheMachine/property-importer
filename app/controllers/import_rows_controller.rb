@@ -5,11 +5,11 @@ class ImportRowsController < ApplicationController
   def index
     if parent_import.present?
       @import = Import.find(parent_import)
-      @import_rows = @import.import_rows
+      @import_rows = @import.import_rows.order(row: :asc)
     else
       @import_rows = ImportRow
                        .joins(:import)
-                       .order("imports.filename ASC", building_name: :asc, unit: :asc)
+                       .order("imports.filename ASC", row: :asc)
     end
   end
 

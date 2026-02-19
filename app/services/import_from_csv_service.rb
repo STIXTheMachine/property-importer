@@ -1,7 +1,7 @@
 
 # Service responsible for importing data from a CSV file and turning it into an Import object for review and validation
 # prior to submitting to the DB
-class ImportFromCSVService < ApplicationService
+class ImportFromCsvService < ApplicationService
   require("csv")
 
   def initialize(file)
@@ -26,10 +26,11 @@ class ImportFromCSVService < ApplicationService
         h[col] = v
       end
 
-      record = ImportRow.new(row_hash)
-      record.normalize_fields!
-      record.import_id = import.id
-      record.save
+      import_row = ImportRow.new(row_hash)
+      import_row.normalize_fields!
+      import_row.import_id = import.id
+      import_row.row = index + 1
+      import_row.save
     end
 
     # Return a reference to the import object we just created

@@ -14,7 +14,7 @@ class PropertiesAndUnitsFromImportService < ApplicationService
 
     # Collect and deduplicate Properties
     @import.import_rows.each do | row |
-      key = [
+      property_key = [
         row.building_name,
         row.street_address,
         row.city,
@@ -22,9 +22,9 @@ class PropertiesAndUnitsFromImportService < ApplicationService
         row.zip_code
       ]
 
-      next if seen.include? key
+      next if seen.include? property_key
 
-      seen.add key
+      seen.add property_key
 
       properties << {
         building_name: row.building_name,
@@ -38,6 +38,25 @@ class PropertiesAndUnitsFromImportService < ApplicationService
     # Bulk insert
     Property.transaction do
       Property.insert_all(properties)
+    end
+
+    # Extract the DB records for all of the properties we just inserted so we can grab the IDs
+    property_lookup = Property
+                        .where(building_name: properties.map { |p| p[:building_name] })
+                        .index_by(&:building_name)
+
+    # Loop over rows, extract unit numbers, assign to properties
+    @import.import_rows.each do | row |
+      units << {
+        number: row.unit,
+        property_id: property_lookup[row.building_name].id
+      }
+
+    end
+
+    # Bulk insert
+    Unit.transaction do
+      Unit.insert_all(units)
     end
   end
 end
