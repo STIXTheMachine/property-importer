@@ -1,6 +1,6 @@
 # Service responsible for parsing data stored in an Import object, converting it to Properties and Units, and saving them
-# to the DB. Assumes data has already been validated.
-class PropertiesAndUnitsFromImportService < ApplicationService
+# to the DB. Will only commit data if the Import has been marked as validated by the ImportValidationService
+class ImportCommitService < ApplicationService
   def initialize(import)
     @import = import
   end
@@ -11,6 +11,10 @@ class PropertiesAndUnitsFromImportService < ApplicationService
     seen = Set.new
     properties = []
     units = []
+
+    unless @import.validated?
+      return { success: false, message: "Commit unsuccessful: Import has not been validated. No data has been sent to the DB. Please run validation and try again." }
+    end
 
     # Collect and deduplicate Properties
     @import.import_rows.each do | row |
@@ -58,5 +62,7 @@ class PropertiesAndUnitsFromImportService < ApplicationService
     Unit.transaction do
       Unit.insert_all(units)
     end
+
+    { success: true, message: "Import successfully committed!" }
   end
 end
